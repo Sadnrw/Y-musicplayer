@@ -1,0 +1,98 @@
+@font-face {
+    font-family: 呆萌字体;
+    src: url(font/方正少儿简体.ttf);
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    text-align: center;
+    background-image: url(img/04-1.jpg);
+    background-size: cover;
+    background-repeat: no-repeat;
+
+}
+
+h1 {
+    color: rgb(255, 255, 255);
+    font-family: 呆萌字体;
+    padding-top: 20px;
+    text-shadow: 7px 7px 7px pink,
+        7px 7px 7px red;
+    font-size: 38px;
+}
+
+div {
+    color: white;
+}
+
+.yinliang {
+    height: 50px;
+    padding-top: 15px;
+}
+
+.cdimg {
+    border-radius: 50%;
+    border: 10px solid #262525;
+    border-right-color: #262525;
+    border-top-color: #262525;
+    animation: ha 4s linear infinite;
+    animation-play-state: paused;
+    height: 200px;
+    width: 200px;
+    margin: 15px;
+}
+
+.time {
+    padding: 10px;
+}
+
+.name {
+    padding-bottom: 10px;
+}
+
+.button {
+    padding: 20px;
+    height: 100px;
+}
+
+@keyframes ha {
+    0% {
+        transform: rotate(0deg)
+    }
+
+    100% {
+        transform: rotate(360deg)
+    }
+}
+
+.container {
+    height: 10px;
+    width: 400px;
+    background: #666;
+    margin: 100px;
+    overflow: hidden;
+    border-radius: 5px;
+    margin: auto;
+
+}
+
+.progress {
+    border-radius: 5px;
+    background: pink;
+    width: 0%;
+    height: 100%;
+}
+
+#progress-bar {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    bottom: -6px;
+    border-radius: 50%;
+    background-color: hsl(252, 100%, 83%);
+}

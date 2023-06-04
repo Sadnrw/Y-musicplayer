@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>纯音乐享受区</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>纯音乐享受区</h3>
+
+        <!--音乐文件的载入-->
+        <!-- preload 属性规定是否在页面加载后载入视频。 -->
+        <audio id="audio" src="mp3/music1.mp3" preload>
+            对不起，您的浏览器不支持HTML5音频播放。
+        </audio>
+
+        <!--仿CD样式圆形图片-->
+
+        <img class="cdimg" id="cdimage" src="img/pc1.jpg" />
+
+
+        <!--音量调节进度条-->
+        <!-- step:步长，间隔，每次加减的多少0,0.1,0.2 -->
+        <div class="yinliang">
+            调节音乐音量
+            <input id="volume" type="range" min="0" max="1" step="0.1" />
+        </div>
+
+
+        <!--显示歌曲名称-->
+        <div class="name">
+            当前正在播放: <span id="title">灰澈 - 星茶会</span>
+        </div>
+
+
+        <!-- 进度条 -->
+        <div class="time" id="time"></div>
+        <div class="container">
+            <div class="progress">
+
+            </div>
+        </div>
+
+
+        <!--音乐播放器按钮-->
+        <div class="button">
+            <button id="prevBtn"><img src="img/上一首.png" width="50" height="50" /></button>
+            <button id="toggleBtn"><img src="img/播放.png" width="50" height="50" id="sop" /></button>
+            <button id="nextBtn"><img src="img/下一首.png" width="50" height="50" /></button>
+        </div>
+
+        <script>
+            var volume = document.getElementById("volume");
+
+            class OneMusic {
+                static #count = 0;
+                constructor(s, t, img) {
+                    if (typeof OneMusic.instance === 'object') {
+                        OneMusic.#count++
+                    }
+                    this.musicId = OneMusic.#count;
+                    this.src = s;
+                    this.title = t;
+                    this.cdImg = img;
+                    OneMusic.instance = this;
+                }
+
+                create() {
+                    const audio_play = document.createElement('audio');
+                    const text = document.createTextNode("对不起，您的浏览器不支持HTML5音频播放。");
+                    audio_play.src = this.src;
+                    audio_play.preload = 'auto';
+                    audio_play.id = `audio_${this.musicId}`;
+                    audio_play.appendChild(text);
+                    document.body.appendChild(audio_play);
+                    return audio_play
+                }
+            }
+
+            class MusicPlayer {
+                //定义当前是第几首曲目
+                static #i = 0;
+                static #musicList = [];
+                static #status = false;
+                static #music = new Object;
+                static #debou = new Object;
+                static #cdImage = document.getElementById("cdimage");
+                static #btnImg = document.getElementById('sop');
+                static #title = document.getElementById("title");
+
+                constructor(musiclist_message) {
+                    MusicPlayer.#musicList.push(...musiclist_message)
+                    MusicPlayer.#update(0)
+                    MusicPlayer.#debou = MusicPlayer.#debounce(() => {
+                        MusicPlayer.#status = true;
+                        MusicPlayer.#cdImage.style.animationPlayState = "running";
+                        MusicPlayer.#music.play()
+                    }, 250)
+                }
+
+                //防抖
+                static #debounce(fn, delay) {
+                    let timer;
+                    return function () {
+                        if (timer) clearTimeout(timer)
+                        timer = setTimeout(() => {
+                            fn()
+                        }, delay);
+                    }
+                }
+
+                //指定播放歌曲
+                static #update(num) {
+                    let arr = document.querySelectorAll('audio')
+                    arr.forEach(item => item.remove())
+                    let cur = this.#musicList[num]
+                    this.#music = cur.create()
+                    this.#cdImage.src = cur.cdImg;
+                    this.#title.innerHTML = cur.title;
+                }
+
+                //播放/暂停
+                static play() {
+                    this.#status = !this.#status
+                    let status = this.#status
+                    if (status) {
+                        this.#music.play()
+                        this.#btnImg.src = `./img/暂停.png`
+                        this.#cdImage.style.animationPlayState = "running"
+                    } else {
+                        this.#music.pause()
+                        this.#btnImg.src = `./img/播放.png`
+                        this.#cdImage.style.animationPlayState = "paused"
+                    }
+                }
+
+                //上一首
+                static prev() {
+                    if (--this.#i < 0) {
+                        this.#i = this.#musicList.length - 1;
+                    }
+                    let i = this.#i;
+                    this.#update(i)
+                    this.#btnImg.src = `./img/暂停.png`;
+                    this.#debou()
+                    // console.log(MusicPlayer.#music)
+                }
+
+                //下一首
+                static next() {
+                    ++this.#i;
+                    this.#i %= this.#musicList.length;
+                    let i = this.#i;
+                    this.#update(i)
+                    this.#btnImg.src = `./img/暂停.png`;
+                    this.#debou()
+                    // console.log(MusicPlayer.#music)
+                }
+            }
+
+
+            let a = new OneMusic(
+                "mp3/music1.mp3",
+                "灰澈 - 星茶会",
+                "img/pc1.jpg"
+            )
+
+            let b = new OneMusic(
+                "mp3/music2.mp3",
+                "Slim Fey - 享受这一刻宁静",
+                "img/pc2.jpg"
+            )
+
+            let c = new OneMusic(
+                "mp3/music3.mp3",
+                "JINBAO - 虹",
+                "img/pc3.jpg"
+            )
+
+            console.log(a);
+            console.log(b);
+            console.log(c);
+
+
+            let musicplayer = new MusicPlayer([a, b, c]);
+
+            toggleBtn.addEventListener('click', () => {
+                MusicPlayer.play()
+            })
+
+            prevBtn.addEventListener('click', () => {
+                MusicPlayer.prev()
+            })
+
+            nextBtn.addEventListener('click', () => {
+                MusicPlayer.next()
+            })
+
+            //定义当前是第几首曲目
+            // var i = 0;
+
+            // toggleBtn.onclick = function () {
+            //     if (music.paused) {
+            //         music.play();
+            //         //播放音乐
+            //         toggleBtn.innerHTML = '<img src="img/暂停.png" width="50" height="50"/>';
+            //         cdimage.style.animationPlayState = "running";
+            //     } else {
+            //         music.pause();
+            //         //暂停音乐
+            //         toggleBtn.innerHTML = '<img src="img/播放.png" width="50" height="50"/>';
+            //         cdimage.style.animationPlayState = "paused";
+            //     }
+            // }
+            // //切换上一首歌曲
+            // prevBtn.onclick = function () {
+            //     if (i == 0) {
+            //         i = list.length - 1;
+            //     } else {
+            //         i--;
+            //         music.pause();
+            //         music.src = list[i];
+            //         title.innerHTML = titleList[i];
+            //         // cdimage.innerHTML = cdimg[i];
+            //         cdimage.src = cdimg[i];
+            //         toggleBtn.innerHTML = '<img src="img/暂停.png" width="50" height="50"/>';
+            //         music.play();
+
+            //     }
+
+            // }
+            // //切换下一首歌曲
+            // nextBtn.onclick = function () {
+            //     if (i == list.length - 1)
+            //         i = 0;
+            //     else
+            //         i++;
+            //     music.pause();
+            //     music.src = list[i];
+            //     title.innerHTML = titleList[i];
+            //     cdimage.src = cdimg[i];
+            //     toggleBtn.innerHTML = '<img src="img/暂停.png" width="50" height="50"/>';
+            //     music.play();
+            //     cdimage.style.animationPlayState = "running";
+            // }
+
+            //设置音量大小
+            // volume.onchange = function () {
+            //     music.volume = volume.value;
+            //     // cdimage.style.animationPlayState = "running";
+            // }
+
+
+
+
+            //进度条
+            // function $(selector) {
+            //     return document.querySelector(selector)
+            // }
+
+            // let progress = $('.progress')
+            // let player = $('#audio')
+
+
+            // let timer = setInterval(() => {
+            //     let str = _.convertSec2Str(player.currentTime) + "/" + _.convertSec2Str(player.duration)
+            //     $('#time').innerHTML = str
+            //     progress.style.width = (player.currentTime * 100 / player.duration) + '%'
+            // }, 500);
+
+            // let _ = {
+            //     repairZero(num) {
+            //         num = num.toString()
+            //         return num[1] ? num : ('0' + num)
+            //     },
+            //     makeStr() {
+            //         let code = Array.prototype.shift.call(arguments)
+            //         return Array.prototype.join.call(arguments, code)
+            //     },
+            //     convertSec2Str(total) {
+            //         let min = _.repairZero(Math.floor(total / 60))
+            //         let sec = _.repairZero(Math.floor(total % 60))
+            //         return _.makeStr(':', min, sec)
+            //     }
+            // }
+
+        </script>
+</body>
+
+</html>
